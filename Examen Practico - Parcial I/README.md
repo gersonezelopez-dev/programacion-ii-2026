@@ -16,32 +16,50 @@ Desarrollar un programa en Java que simule las funciones principales de un cajer
 
 ## **Descripción:**
 
-Este proyecto consiste en la creación de un simulador de cajero automático desarrollado en Java.
+Este proyecto consiste en un simulador de cajero automático desarrollado en Java para una sola cuenta bancaria.
 
-El programa permite al usuario iniciar sesión mediante un PIN y realizar diferentes operaciones bancarias desde un menú interactivo.
+El programa permite controlar el acceso mediante PIN y realizar operaciones básicas desde un menú interactivo.
 
-El sistema utiliza métodos, estructuras condicionales, ciclos, `switch`, validaciones de datos y sobrecarga de métodos.
-
+El sistema utiliza métodos, estructuras condicionales, ciclos, `switch`, validaciones, contadores, acumuladores y sobrecarga de métodos.
 
 ## **Funciones del cajero**
 
-**Inicio de sesión:** Acceso mediante PIN con máximo 3 intentos.
-
-**Consultar saldo:** Muestra el saldo disponible.
-
-**Retirar efectivo:** Permite retirar dinero validando saldo y monto.
-
-**Depositar efectivo:** Agrega dinero al saldo de la cuenta.
-
-**Transferencias:** Envía dinero a otra cuenta con confirmación SI/NO.
-
-**Cambiar PIN:** Permite establecer un nuevo PIN de 4 dígitos.
-
-**Salir:** Finaliza la sesión del cajero.
+- **Inicio de sesión:** Acceso mediante PIN con máximo 3 intentos.
+- **Consultar saldo:** Muestra titular, cuenta y saldo disponible.
+- **Depositar dinero:** Permite realizar depósitos con validación del monto.
+- **Retiro normal:** Permite retirar efectivo según las condiciones establecidas.
+- **Retiro con comisión:** Aplica una comisión de Q10.00 al retiro.
+- **Resumen de sesión:** Muestra las operaciones realizadas durante la sesión.
+- **Salir:** Muestra el resumen final y finaliza el programa.
 
 
+## **Conceptos utilizados**
 
+- Variables y constantes
+- `Scanner`
+- Métodos `void`
+- Métodos con retorno
+- Parámetros y argumentos
+- `if` y `else`
+- `switch`
+- Ciclo `for`
+- Ciclo `while`
+- Ciclo `do-while`
+- `break`
+- `continue`
+- Contadores y acumuladores
+- Sobrecarga de métodos
+- Validación de datos
+
+## **Ejecución**
+
+1. Abrir el proyecto en IntelliJ IDEA.
+2. Ejecutar la clase `CajeroAutomatico`.
+3. Ingresar el PIN correspondiente.
+4. Seleccionar una opción del menú.
+5. Realizar las operaciones deseadas.
+6. Seleccionar la opción 6 para finalizar.
 
 ## **Autor**
 
-Gerson López 
+_Gerson López_ 
