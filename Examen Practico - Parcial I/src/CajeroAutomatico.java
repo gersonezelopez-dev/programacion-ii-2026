@@ -2,31 +2,52 @@ import java.util.Scanner;
 
 public class CajeroAutomatico {
 
+    static String titular = "Gerson López";
+    static String numeroCuenta = "XXXX"; // Coloca aquí los últimos 4 dígitos de tu carné
+
+    static final int PIN_CORRECTO = 2026;
+    static final double SALDO_INICIAL = 1000.00;
+    static final double COMISION = 10.00;
+
+
+    static int cantidadDepositos = 0;
+    static double totalDepositado = 0.00;
+
+    static int cantidadRetiros = 0;
+    static double totalRetirado = 0.00;
+
+    static double totalComisiones = 0.00;
+
+    static int operacionesRechazadas = 0;
+    static int opcionesInvalidas = 0;
+
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
 
-        String nombreCliente = "Gerson López";
-        int pinGuardado = 1234;
-        double saldo = 2500.00;
+        double saldo = SALDO_INICIAL;
 
         System.out.println("====================================");
         System.out.println("        CAJERO AUTOMÁTICO");
         System.out.println("====================================");
 
-        boolean accesoPermitido = iniciarSesion(scanner, pinGuardado);
+        boolean accesoPermitido = validarAcceso(scanner);
 
         if (!accesoPermitido) {
-            System.out.println("\nCuenta bloqueada por demasiados intentos.");
-            System.out.println("Comuníquese con el banco.");
+
+            System.out.println("\nCuenta bloqueada durante esta sesión.");
+            System.out.println("Programa finalizado.");
+
             scanner.close();
             return;
         }
 
-        System.out.println("\nBienvenido, " + nombreCliente);
+        System.out.println("\nBienvenido(a), " + titular);
 
         int opcion;
 
+       //MENÚ PRINCIPAL//
         do {
 
             mostrarMenu();
@@ -39,41 +60,70 @@ public class CajeroAutomatico {
             switch (opcion) {
 
                 case 1:
+
                     consultarSaldo(saldo);
                     break;
 
                 case 2:
-                    saldo = realizarRetiro(scanner, saldo);
+
+                    saldo = procesarDeposito(
+                            scanner,
+                            saldo
+                    );
                     break;
 
                 case 3:
-                    saldo = realizarDeposito(scanner, saldo);
+
+                    // RETIRO NORMAL
+                    saldo = procesarRetiro(
+                            scanner,
+                            saldo
+                    );
                     break;
 
                 case 4:
-                    saldo = realizarTransferencia(scanner, saldo);
+
+                    //RETIRO CON COMISIÓN
+                    saldo = procesarRetiro(
+                            scanner,
+                            saldo,
+                            COMISION
+                    );
                     break;
 
                 case 5:
-                    pinGuardado = cambiarPin(
-                            scanner,
-                            pinGuardado
-                    );
+
+                    mostrarResumen(saldo);
                     break;
 
                 case 6:
+
                     System.out.println(
-                            "\nGracias por utilizar nuestro cajero."
+                            "\nMostrando resumen final de la sesión..."
                     );
-                    System.out.println("Retire su tarjeta.");
+
+                    mostrarResumen(saldo);
+
+                    System.out.println(
+                            "\nGracias por utilizar nuestro cajero automático."
+                    );
+
+                    System.out.println(
+                            "Retire su tarjeta."
+                    );
+
                     break;
 
                 default:
-                    System.out.println("\nOpción incorrecta.");
+
                     System.out.println(
-                            "Seleccione una opción del 1 al 6."
+                            "\nOpción inválida."
                     );
-                    break;
+
+                    opcionesInvalidas++;
+
+                    //REGRESA INMEDIATAMENTE AL MENÚ
+                    continue;
             }
 
         } while (opcion != 6);
@@ -81,10 +131,13 @@ public class CajeroAutomatico {
         scanner.close();
     }
 
-    public static boolean iniciarSesion(
-            Scanner scanner,
-            int pinGuardado
+
+
+    public static boolean validarAcceso(
+            Scanner scanner
     ) {
+
+        boolean accesoPermitido = false;
 
         int intentosPermitidos = 3;
 
@@ -97,17 +150,27 @@ public class CajeroAutomatico {
                     "\nIngrese su PIN: "
             );
 
-            if (pinIngresado == pinGuardado) {
-                System.out.println("\nPIN correcto.");
-                return true;
+            if (pinIngresado == PIN_CORRECTO) {
+
+                System.out.println(
+                        "\nPIN correcto."
+                );
+
+                accesoPermitido = true;
+
+
+                break;
             }
 
             int intentosRestantes =
                     intentosPermitidos - intento;
 
-            System.out.println("PIN incorrecto.");
+            System.out.println(
+                    "PIN incorrecto."
+            );
 
             if (intentosRestantes > 0) {
+
                 System.out.println(
                         "Intentos restantes: "
                                 + intentosRestantes
@@ -115,357 +178,501 @@ public class CajeroAutomatico {
             }
         }
 
-        return false;
+        return accesoPermitido;
     }
+
+
+    // MOSTRAR MENÚ
+
     public static void mostrarMenu() {
 
-        System.out.println("\n====================================");
-        System.out.println("          MENÚ PRINCIPAL");
-        System.out.println("====================================");
-        System.out.println("1. Consultar saldo");
-        System.out.println("2. Retirar efectivo");
-        System.out.println("3. Depositar efectivo");
-        System.out.println("4. Realizar transferencia");
-        System.out.println("5. Cambiar PIN");
-        System.out.println("6. Salir");
-        System.out.println("====================================");
+        System.out.println(
+                "\n===================================="
+        );
+
+        System.out.println(
+                "          MENÚ PRINCIPAL"
+        );
+
+        System.out.println(
+                "===================================="
+        );
+
+        System.out.println(
+                "1. Consultar saldo"
+        );
+
+        System.out.println(
+                "2. Depositar dinero"
+        );
+
+        System.out.println(
+                "3. Realizar retiro normal"
+        );
+
+        System.out.println(
+                "4. Realizar retiro con comisión"
+        );
+
+        System.out.println(
+                "5. Mostrar resumen de la sesión"
+        );
+
+        System.out.println(
+                "6. Salir"
+        );
+
+        System.out.println(
+                "===================================="
+        );
     }
 
-    public static void consultarSaldo(double saldo) {
-        System.out.println("\n=============================");
-        System.out.println("      CONSULTA DE SALDO        ");
-        System.out.println("===============================");
+
+    // CONSULTAR SALDO
+
+    public static void consultarSaldo(
+            double saldo
+    ) {
+
+        System.out.println(
+                "\n===================================="
+        );
+
+        System.out.println(
+                "          CONSULTA DE SALDO"
+        );
+
+        System.out.println(
+                "===================================="
+        );
+
+        System.out.println(
+                "Titular: " + titular
+        );
+
+        System.out.println(
+                "Número de cuenta: " + numeroCuenta
+        );
+
         System.out.printf(
                 "Saldo disponible: Q%.2f%n",
                 saldo
         );
+
+        System.out.println(
+                "===================================="
+        );
     }
 
-    public static double realizarRetiro(
+
+
+    // DEPÓSITO
+
+
+    public static double procesarDeposito(
             Scanner scanner,
             double saldoActual
-    ){
-        System.out.println("\n================================");
-        System.out.println("        RETIRO DE EFECTIVO        ");
-        System.out.println("==================================");
+    ) {
 
-        System.out.println("1. Q100");
-        System.out.println("2. Q200");
-        System.out.println("3. Q500");
-        System.out.println("4. Otro monto");
-        System.out.println("5. Cancelar");
-
-        int opcionRetiro = leerEntero(
-                scanner,
-                "Seleccione una opción: "
+        System.out.println(
+                "\n===================================="
         );
 
-        double monto;
+        System.out.println(
+                "             DEPÓSITO"
+        );
 
-        switch (opcionRetiro) {
+        System.out.println(
+                "===================================="
+        );
 
-            case 1:
-                monto = 100;
-                break;
+        double monto = leerDouble(
+                scanner,
+                "Ingrese el monto a depositar: Q"
+        );
 
-            case 2:
-                monto = 200;
-                break;
-
-            case 3:
-                monto = 500;
-                break;
-
-            case 4:
-                monto = leerDouble(
-                        scanner,
-                        "Ingrese el monto a retirar: Q"
-                );
-                break;
-
-            case 5:
-                mostrarMensaje("Retiro cancelado.");
-                return saldoActual;
-
-            default:
-                mostrarMensaje(
-                        "Opción de retiro incorrecta."
-                );
-            return saldoActual;
-        }
-
-        if (!validarMonto(monto, saldoActual)) {
+        // WHILE OBLIGATORIO
+        while (monto <= 0 || monto > 5000) {
 
             if (monto <= 0) {
-                mostrarMensaje(
-                        "El monto debe ser mayor que cero."
+
+                System.out.println(
+                        "Error: el monto debe ser mayor que Q0.00."
                 );
+
             } else {
-                mostrarMensaje(
-                        "Saldo insuficiente."
+
+                System.out.println(
+                        "Error: el depósito no puede superar Q5,000.00."
                 );
             }
+
+            monto = leerDouble(
+                    scanner,
+                    "Ingrese nuevamente el monto: Q"
+            );
+        }
+
+        double saldoAnterior = saldoActual;
+
+        double nuevoSaldo =
+                saldoActual + monto;
+
+        cantidadDepositos++;
+
+        totalDepositado += monto;
+
+        System.out.println(
+                "\nDepósito realizado correctamente."
+        );
+
+        System.out.printf(
+                "Monto depositado: Q%.2f%n",
+                monto
+        );
+
+        System.out.printf(
+                "Saldo anterior: Q%.2f%n",
+                saldoAnterior
+        );
+
+        System.out.printf(
+                "Saldo actualizado: Q%.2f%n",
+                nuevoSaldo
+        );
+
+        return nuevoSaldo;
+    }
+
+
+
+    // RETIRO NORMAL
+    // PRIMER MÉTODO SOBRECARGADO
+
+
+    public static double procesarRetiro(
+            Scanner scanner,
+            double saldoActual
+    ) {
+
+        System.out.println(
+                "\n===================================="
+        );
+
+        System.out.println(
+                "          RETIRO NORMAL"
+        );
+
+        System.out.println(
+                "===================================="
+        );
+
+        double monto = leerDouble(
+                scanner,
+                "Ingrese el monto a retirar: Q"
+        );
+
+        // VALIDACIONES ACA REALIZA LAS VALIDACIONES
+
+        if (monto <= 0) {
+
+            System.out.println(
+                    "Retiro rechazado: el monto debe ser mayor que Q0.00."
+            );
+
+            operacionesRechazadas++;
 
             return saldoActual;
         }
 
         if (monto % 20 != 0) {
-            mostrarMensaje(
-                    "El monto debe ser múltiplo de Q20."
+
+            System.out.println(
+                    "Retiro rechazado: el monto debe ser múltiplo de Q20.00."
             );
+
+            operacionesRechazadas++;
+
             return saldoActual;
         }
 
-    double nuevoSaldo = saldoActual - monto;
+        if (monto > 2000) {
 
-        mostrarMensaje(
-                "Retiro realizado correctamente.",
+            System.out.println(
+                    "Retiro rechazado: el monto máximo por operación es Q2,000.00."
+            );
+
+            operacionesRechazadas++;
+
+            return saldoActual;
+        }
+
+        if (monto > saldoActual) {
+
+            System.out.println(
+                    "Retiro rechazado: saldo insuficiente."
+            );
+
+            operacionesRechazadas++;
+
+            return saldoActual;
+        }
+
+        // RETIRO APROBADO
+
+        double saldoAnterior =
+                saldoActual;
+
+        double totalDebitado =
+                monto;
+
+        double nuevoSaldo =
+                saldoActual - totalDebitado;
+
+        cantidadRetiros++;
+
+        totalRetirado += monto;
+
+        System.out.println(
+                "\nRetiro realizado correctamente."
+        );
+
+        System.out.printf(
+                "Monto solicitado: Q%.2f%n",
                 monto
         );
 
-        mostrarComprobante(
-                "RETIRO",
-                monto,
+        System.out.printf(
+                "Saldo anterior: Q%.2f%n",
+                saldoAnterior
+        );
+
+        System.out.printf(
+                "Total debitado: Q%.2f%n",
+                totalDebitado
+        );
+
+        System.out.printf(
+                "Saldo actualizado: Q%.2f%n",
                 nuevoSaldo
         );
 
         return nuevoSaldo;
-}
-
-public static double realizarDeposito(
-        Scanner scanner,
-        double saldoActual
-) {
-
-    System.out.println("\n===============================");
-    System.out.println("           DEPÓSITO              ");
-    System.out.println("=================================");
-
-    double monto = leerDouble(
-            scanner,
-            "Ingrese el monto a depositar: Q"
-    );
-
-    if (!validarMonto(monto)) {
-        mostrarMensaje(
-                "El monto debe ser mayor que cero."
-        );
-        return saldoActual;
     }
 
-    double nuevoSaldo = saldoActual + monto;
 
-    mostrarMensaje(
-            "Depósito realizado correctamente.",
-            monto
-    );
 
-    mostrarComprobante(
-            "DEPÓSITO",
-            monto,
-            nuevoSaldo
-    );
+    // RETIRO CON COMISIÓN
+    // SEGUNDO MÉTODO SOBRECARGADO
 
-    return nuevoSaldo;
 
-}
-
-    public static double realizarTransferencia(
+    public static double procesarRetiro(
             Scanner scanner,
-            double saldoActual
+            double saldoActual,
+            double comision
     ) {
 
-        System.out.println("\n====================================");
-        System.out.println("          TRANSFERENCIA");
-        System.out.println("====================================");
-
-        String cuentaDestino = leerTexto(
-                scanner,
-                "Ingrese el número de cuenta destino: "
+        System.out.println(
+                "\n===================================="
         );
 
-        if (cuentaDestino.isEmpty()) {
-            mostrarMensaje(
-                    "La cuenta no puede estar vacía."
-            );
-            return saldoActual;
-        }
+        System.out.println(
+                "      RETIRO CON COMISIÓN"
+        );
+
+        System.out.println(
+                "===================================="
+        );
 
         double monto = leerDouble(
                 scanner,
-                "Ingrese el monto a transferir: Q"
+                "Ingrese el monto a retirar: Q"
         );
 
-        if (!validarMonto(monto, saldoActual)) {
+        // VALIDACIONES
 
-            if (monto <= 0) {
-                mostrarMensaje(
-                        "El monto debe ser mayor que cero."
-                );
-            } else {
-                mostrarMensaje(
-                        "Saldo insuficiente."
-                );
-            }
+        if (monto <= 0) {
+
+            System.out.println(
+                    "Retiro rechazado: el monto debe ser mayor que Q0.00."
+            );
+
+            operacionesRechazadas++;
 
             return saldoActual;
         }
 
-        System.out.println("\nCuenta destino: " + cuentaDestino);
-        System.out.printf("Monto: Q%.2f%n", monto);
+        if (monto % 20 != 0) {
 
-        String confirmacion = leerTexto(
-                scanner,
-                "¿Confirma la transferencia? (SI/NO): "
-        );
+            System.out.println(
+                    "Retiro rechazado: el monto debe ser múltiplo de Q20.00."
+            );
 
-        if (confirmacion.equalsIgnoreCase("NO")) {
+            operacionesRechazadas++;
 
-            mostrarMensaje("Transferencia cancelada.");
-            return saldoActual;
-
-        } else if (!confirmacion.equalsIgnoreCase("SI")) {
-
-            mostrarMensaje("Debe escribir únicamente SI o NO.");
             return saldoActual;
         }
 
-        double nuevoSaldo = saldoActual - monto;
+        if (monto > 2000) {
 
-        mostrarMensaje(
-                "Transferencia realizada correctamente.",
+            System.out.println(
+                    "Retiro rechazado: el monto máximo por operación es Q2,000.00."
+            );
+
+            operacionesRechazadas++;
+
+            return saldoActual;
+        }
+
+        double totalDebitado =
+                monto + comision;
+
+        // Puede cubrir el retiro, pero no la comisión
+
+        if (monto <= saldoActual &&
+                totalDebitado > saldoActual) {
+
+            System.out.println(
+                    "Retiro rechazado: el saldo cubre el retiro,"
+            );
+
+            System.out.println(
+                    "pero no permite cubrir la comisión de Q10.00."
+            );
+
+            operacionesRechazadas++;
+
+            return saldoActual;
+        }
+
+        if (totalDebitado > saldoActual) {
+
+            System.out.println(
+                    "Retiro rechazado: saldo insuficiente."
+            );
+
+            operacionesRechazadas++;
+
+            return saldoActual;
+        }
+
+        // RETIRO APROBADO
+
+        double saldoAnterior =
+                saldoActual;
+
+        double nuevoSaldo =
+                saldoActual - totalDebitado;
+
+        cantidadRetiros++;
+
+        totalRetirado += monto;
+
+        totalComisiones += comision;
+
+        System.out.println(
+                "\nRetiro realizado correctamente."
+        );
+
+        System.out.printf(
+                "Monto solicitado: Q%.2f%n",
                 monto
         );
 
-        mostrarComprobante(
-                "TRANSFERENCIA",
-                cuentaDestino,
-                monto,
+        System.out.printf(
+                "Comisión: Q%.2f%n",
+                comision
+        );
+
+        System.out.printf(
+                "Total debitado: Q%.2f%n",
+                totalDebitado
+        );
+
+        System.out.printf(
+                "Saldo anterior: Q%.2f%n",
+                saldoAnterior
+        );
+
+        System.out.printf(
+                "Saldo actualizado: Q%.2f%n",
                 nuevoSaldo
         );
 
         return nuevoSaldo;
     }
 
-    public static int cambiarPin(
-            Scanner scanner,
-            int pinActual
+
+    // MOSTRAR RESUMEN
+
+
+    public static void mostrarResumen(
+            double saldoActual
     ) {
 
-        System.out.println("\n====================================");
-        System.out.println("            CAMBIAR PIN");
-        System.out.println("====================================");
-
-        int pinIngresado = leerEntero(
-                scanner,
-                "Ingrese su PIN actual: "
-        );
-
-        if (pinIngresado != pinActual) {
-            mostrarMensaje(
-                    "El PIN actual es incorrecto."
-            );
-            return pinActual;
-        }
-
-        int nuevoPin = leerEntero(
-                scanner,
-                "Ingrese el nuevo PIN: "
-        );
-
-        if (!validarPin(nuevoPin)) {
-            mostrarMensaje(
-                    "El PIN debe contener cuatro dígitos."
-            );
-            return pinActual;
-        }
-
-        int confirmarPin = leerEntero(
-                scanner,
-                "Confirme el nuevo PIN: "
-        );
-
-        if (nuevoPin != confirmarPin) {
-            mostrarMensaje(
-                    "Los PIN ingresados no coinciden."
-            );
-            return pinActual;
-        }
-
-        mostrarMensaje(
-                "PIN actualizado correctamente."
-        );
-
-        return nuevoPin;
-    }
-
-    public static boolean validarPin(int pin) {
-        return pin >= 1000 && pin <= 9999;
-    }
-
-
-    //SOBRECARGA DE METODO VALIDAR MONTO
-    public static boolean validarMonto(double monto) {
-        return monto > 0;
-    }
-
-    public static boolean validarMonto(
-            double monto,
-            double saldoDisponible
-    ) {
-        return monto > 0 && monto <= saldoDisponible;
-    }
-
-    //SOBRECARGA DEL METODO MOSTRAR MENSAJE
-    public static void mostrarMensaje(String mensaje) {
-        System.out.println("\n" + mensaje);
-    }
-
-    public static void mostrarMensaje(
-            String mensaje,
-            double monto
-    ) {
-        System.out.println("\n" + mensaje);
-        System.out.printf(
-                "Monto de la operación: Q%.2f%n",
-                monto
-        );
-    }
-
-    //SOBRECARGA DEL METODO MOSTRAR COMPROBANTE
-    public static void mostrarComprobante(
-            String operacion,
-            double monto,
-            double saldo
-    ) {
-
-        System.out.println("\n====================================");
-        System.out.println("            COMPROBANTE");
-        System.out.println("====================================");
-        System.out.println("Operación: " + operacion);
-        System.out.printf("Monto: Q%.2f%n", monto);
-        System.out.printf("Saldo: Q%.2f%n", saldo);
-        System.out.println("====================================");
-    }
-
-    public static void mostrarComprobante(
-            String operacion,
-            String cuentaDestino,
-            double monto,
-            double saldo
-    ) {
-
-        System.out.println("\n====================================");
-        System.out.println("            COMPROBANTE");
-        System.out.println("====================================");
-        System.out.println("Operación: " + operacion);
         System.out.println(
-                "Cuenta destino: " + cuentaDestino
+                "\n===================================="
         );
-        System.out.printf("Monto: Q%.2f%n", monto);
-        System.out.printf("Saldo: Q%.2f%n", saldo);
-        System.out.println("====================================");
+
+        System.out.println(
+                "        RESUMEN DE LA SESIÓN"
+        );
+
+        System.out.println(
+                "===================================="
+        );
+
+        System.out.printf(
+                "Saldo inicial: Q%.2f%n",
+                SALDO_INICIAL
+        );
+
+        System.out.println(
+                "Depósitos exitosos: "
+                        + cantidadDepositos
+        );
+
+        System.out.printf(
+                "Total depositado: Q%.2f%n",
+                totalDepositado
+        );
+
+        System.out.println(
+                "Retiros exitosos: "
+                        + cantidadRetiros
+        );
+
+        System.out.printf(
+                "Total entregado en retiros: Q%.2f%n",
+                totalRetirado
+        );
+
+        System.out.printf(
+                "Total cobrado en comisiones: Q%.2f%n",
+                totalComisiones
+        );
+
+        System.out.println(
+                "Operaciones rechazadas: "
+                        + operacionesRechazadas
+        );
+
+        System.out.println(
+                "Opciones inválidas: "
+                        + opcionesInvalidas
+        );
+
+        System.out.printf(
+                "Saldo actual: Q%.2f%n",
+                saldoActual
+        );
+
+        System.out.println(
+                "===================================="
+        );
     }
+
+    // LEER NÚMEROS ENTEROS
 
     public static int leerEntero(
             Scanner scanner,
@@ -475,19 +682,30 @@ public static double realizarDeposito(
         while (true) {
 
             System.out.print(mensaje);
-            String entrada = scanner.nextLine();
+
+            String entrada =
+                    scanner.nextLine();
 
             try {
-                return Integer.parseInt(entrada);
+
+                return Integer.parseInt(
+                        entrada
+                );
+
             } catch (NumberFormatException error) {
-                System.out.print(
+
+                System.out.println(
                         "Error: ingrese un número entero."
                 );
             }
         }
     }
 
-    public  static double leerDouble(
+
+
+    // LEER NÚMEROS DECIMALES
+
+    public static double leerDouble(
             Scanner scanner,
             String mensaje
     ) {
@@ -495,12 +713,18 @@ public static double realizarDeposito(
         while (true) {
 
             System.out.print(mensaje);
-            String entrada = scanner.nextLine();
 
-            entrada = entrada.replace(",", ".");
+            String entrada =
+                    scanner.nextLine();
+
+            entrada =
+                    entrada.replace(",", ".");
 
             try {
-                return Double.parseDouble(entrada);
+
+                return Double.parseDouble(
+                        entrada
+                );
 
             } catch (NumberFormatException error) {
 
@@ -509,14 +733,5 @@ public static double realizarDeposito(
                 );
             }
         }
-    }
-
-    public static String leerTexto(
-            Scanner scanner,
-            String mensaje
-    ) {
-
-        System.out.print(mensaje);
-        return scanner.nextLine().trim();
     }
 }
