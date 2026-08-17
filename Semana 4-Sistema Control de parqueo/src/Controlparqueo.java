@@ -79,19 +79,75 @@ public class Controlparqueo {
 
             } while (TipoVehiculo < 1 || TipoVehiculo > 3);
 
-            //validar SE HACE VALIDACION DE HORAS
+            //validar SE HACE VALIDACION DE HORAS // RETO OPCIONAL AGREGAR HORA Y MINUTOS
 
-            int Horas;
+            int HoraEntrada;
+            int MinutoEntrada;
+            int HoraSalida;
+            int MinutoSalida;
 
             do {
-                System.out.print("Ingrese cantidad de horas estacionadas: ");
-                Horas = scanner.nextInt();
+                System.out.print("Hora de entrada (0-23): ");
+                HoraEntrada = scanner.nextInt();
 
-                if (Horas <= 0) {
-                    System.out.println("Error: las horas deben ser mayores que cero.");
+                if (HoraEntrada < 0 || HoraEntrada > 23) {
+                    System.out.println("Error: la hora debe estar entre 0 y 23.");
                 }
 
-            } while (Horas <= 0);
+            } while (HoraEntrada < 0 || HoraEntrada > 23);
+
+            do {
+                System.out.print("Minuto de entrada (0-59): ");
+                MinutoEntrada = scanner.nextInt();
+
+                if (MinutoEntrada < 0 || MinutoEntrada > 59) {
+                    System.out.println("Error: el minuto debe estar entre 0 y 59.");
+                }
+
+            } while (MinutoEntrada < 0 || MinutoEntrada > 59);
+
+            do {
+                System.out.print("Hora de salida (0-23): ");
+                HoraSalida = scanner.nextInt();
+
+                if (HoraSalida < 0 || HoraSalida > 23) {
+                    System.out.println("Error: la hora debe estar entre 0 y 23.");
+                }
+
+            } while (HoraSalida < 0 || HoraSalida > 23);
+
+            do {
+                System.out.print("Minuto de salida (0-59): ");
+                MinutoSalida = scanner.nextInt();
+
+                if (MinutoSalida < 0 || MinutoSalida > 59) {
+                    System.out.println("Error: el minuto debe estar entre 0 y 59.");
+                }
+
+            } while (MinutoSalida < 0 || MinutoSalida > 59);
+
+            // CONVERTIR convertir la hora de entrada a minutos salida
+
+            int TotalMinutosEntrada = HoraEntrada * 60 + MinutoEntrada;
+            int TotalMinutosSalida = HoraSalida * 60 + MinutoSalida;
+
+            // SALIDA SIGUIENTE aca es para colocar la salida del dia siguiente 22:50
+            if (TotalMinutosSalida <= TotalMinutosEntrada) {
+                TotalMinutosSalida = TotalMinutosSalida + (24 * 60);
+            }
+
+           // CALCULO calcula tiempo real
+            int MinutosEstacionado = TotalMinutosSalida - TotalMinutosEntrada;
+
+            int HorasExactas = MinutosEstacionado / 60;
+            int MinutosExactos = MinutosEstacionado % 60;
+
+           // COBRO Para cobrar hora completa y/o cualquier fracción
+            int Horas = MinutosEstacionado / 60;
+
+            if (MinutosEstacionado % 60 != 0) {
+                Horas++;
+            }
 
             // validar VALIDACIÓN DE TICKET
 
@@ -169,17 +225,20 @@ public class Controlparqueo {
     }
 
     // MOSTRAR COMPROBANTE
-    MostrarComprobante(
-            Placa,
-            NombreVehiculo,
-            Horas,
-            Tarifa,
-            Subtotal,
-            Descuento,
-            Recargo,
-            TotalPagar
+            MostrarComprobante(
+                    Placa,
+                    NombreVehiculo,
+                    HorasExactas,
+                    MinutosExactos,
+                    Horas,
+                    Tarifa,
+                    Subtotal,
+                    Descuento,
+                    Recargo,
+                    TotalPagar
             );
 }
+
 //Aca se mostrara RESUMEN FINAL
 MostrarResumen(
         CantidadMotos,
@@ -263,9 +322,11 @@ public static double CalcularPago(int Horas, double Tarifa, double Recargo) {
 }
 
 //Método PARA MOSTRAR COMPROBANTE
-public static void MostrarComprobante(
-        String Placa,
-        String TipoVehiculo,
+        public static void MostrarComprobante(
+                String Placa,
+                String TipoVehiculo,
+        int HorasExactas,
+        int MinutosExactos,
         int Horas,
         double Tarifa,
         double Subtotal,
@@ -276,7 +337,10 @@ public static void MostrarComprobante(
 System.out.println("\n=========== COMPROBANTE ===========");
 System.out.println("Placa: " + Placa);
 System.out.println("Tipo: " + TipoVehiculo);
-System.out.println("Horas Estacionado: " + Horas);
+            System.out.println("Tiempo estacionado: " + HorasExactas
+                    + " horas y " + MinutosExactos + " minutos");
+
+            System.out.println("Horas cobradas: " + Horas);
 
 System.out.printf("Tarifa por Hora: Q%.2f%n", Tarifa);
 System.out.printf("Subtotal: Q%.2f%n", Subtotal);

@@ -32,4 +32,4 @@ La sobrecarga se aplicó en CalcularPago(). Una versión recibe Horas y Tarifa, 
 
 ## **Reto opcional**
 
-No realizado.
+SI
